@@ -7,6 +7,7 @@ import matplotlib.pyplot as plt
 
 import demosaic
 import white_balance
+import black_level
 
 raw_file = "chart.jpg"
 raw = rawpy.imread(raw_file)
@@ -85,18 +86,7 @@ plt.title(u' ホワイトバランス後の画像')
 blc = [66, 66, 66, 66]
 print(blc)
 
-pattern = raw.raw_pattern
-blc_raw = raw_array.astype('int')
-
-for y in range(0, h, 2):
-  for x in range(0, w, 2):
-    blc_raw[y + 0, x + 0] -= blc[pattern[0,0]]
-    blc_raw[y + 0, x + 1] -= blc[pattern[0,1]]
-    blc_raw[y + 1, x + 0] -= blc[pattern[1,0]]
-    blc_raw[y + 1, x + 1] -= blc[pattern[1,1]]
-
-print("ブラックレベルの補正前: 最小値=", raw_array.min(), "最大値=", raw_array.max())
-print("ブラックレベルの補正後: 最小値=", blc_raw.min(), "最大値=", blc_raw.max())
+blc_raw = black_level.black_level_correction(raw_array, blc, raw.raw_pattern)
 
 gain, colors = raw.camera_whitebalance, raw.raw_colors
 wb_img = white_balance.white_balance(blc_raw, gain, colors)
