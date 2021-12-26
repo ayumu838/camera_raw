@@ -1,11 +1,12 @@
 # -*- coding: utf-8 -*-
 
-from matplotlib import widgets
+from matplotlib import colors, widgets
 import rawpy, imageio
 import numpy as np
 import matplotlib.pyplot as plt
 
 import demosaic
+import white_balance
 
 raw_file = "chart.jpg"
 raw = rawpy.imread(raw_file)
@@ -65,14 +66,9 @@ plt.axis('off')
 plt.title(u' 簡易モザイク')
 # plt.show()
 
-wb = raw.camera_whitebalance
 
-wb_img = raw_array.copy()
-pattern = raw.raw_pattern
-for y in range(0, h):
-  for x in range(0, w):
-    c = pattern[y % 2, x % 2]
-    wb_img[y, x] *= wb[c]
+gain, colors = raw.camera_whitebalance, raw.raw_colors
+wb_img = white_balance.white_balance(raw_array, gain, colors)
 
 dms_img = demosaic.simple_demosaic(wb_img, raw.raw_pattern)
 dms_img /= 1024
