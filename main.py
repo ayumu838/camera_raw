@@ -8,6 +8,7 @@ import matplotlib.pyplot as plt
 import demosaic
 import white_balance
 import black_level
+import gamma
 
 raw_file = "chart.jpg"
 raw = rawpy.imread(raw_file)
@@ -110,19 +111,7 @@ gain, colors = raw.camera_whitebalance, raw.raw_colors
 wb_img = white_balance.white_balance(blc_raw, gain, colors)
 dms_img = demosaic.simple_demosaic(wb_img , raw.raw_pattern)
 
-plt.figure(figsize=(8, 8))
-dms_img /= 1024
-dms_img[dms_img<0] = 0
-dms_img[dms_img>1] = 1
-plt.imshow(dms_img)
-plt.axis('off')
-plt.title(u"ガンマ補正前")
-plt.show()
-
-gamma_img = dms_img.astype(float)
-gamma_img[gamma_img < 0] = 0
-gamma_img /= gamma_img.max()
-gamma_img = np.power(gamma_img, 1/2.2)
+gamma_img = gamma.gamma_correction(dms_img/1024, 2.2)
 
 plt.figure(figsize=(8, 8))
 plt.imshow(gamma_img)
