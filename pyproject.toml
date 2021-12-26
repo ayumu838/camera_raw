@@ -8,6 +8,7 @@ authors = ["ayumu.mochizuki <ayumu839.a@gmail.com>"]
 python = "^3.10"
 rawpy = "^0.17.0"
 imageio = "^2.13.5"
+matplotlib = "^3.5.1"
 
 [tool.poetry.dev-dependencies]
 
