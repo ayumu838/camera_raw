@@ -63,4 +63,24 @@ plt.figure(figsize=(8, 8))
 plt.imshow(dms_img)
 plt.axis('off')
 plt.title(u' 簡易モザイク')
+# plt.show()
+
+wb = raw.camera_whitebalance
+
+wb_img = raw_array.copy()
+pattern = raw.raw_pattern
+for y in range(0, h):
+  for x in range(0, w):
+    c = pattern[y % 2, x % 2]
+    wb_img[y, x] *= wb[c]
+
+dms_img = demosaic.simple_demosaic(wb_img, raw.raw_pattern)
+dms_img /= 1024
+dms_img[dms_img < 0] = 0
+dms_img[dms_img > 1] = 1.0
+
+plt.figure(figsize=(8, 8))
+plt.imshow(dms_img)
+plt.axis('off')
+plt.title(u' ホワイトバランス後の画像')
 plt.show()
