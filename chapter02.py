@@ -5,6 +5,8 @@ import matplotlib.pyplot as plt
 
 import raw_process
 
+plt.rcParams["font.family"] = "IPAexGothic"
+
 raw_file = "chart.jpg"
 raw = rawpy.imread(raw_file)
 raw_array = raw.raw_image
