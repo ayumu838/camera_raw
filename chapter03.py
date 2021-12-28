@@ -33,22 +33,24 @@ dms_img = dms_img / white_level
 
 gmm_img = gamma_correction(dms_img, 2.2)
 
-plt.figure(figsize=(16, 8))
-plt.imshow(gmm_img)
-plt.axis("off")
-plt.title("簡易デモザイクを使ったRAW現像結果")
-# plt.show()
-
 jpg_img = image.imread("chart.jpg")
 jpg_img = jpg_img / jpg_img.max()
 h2, w2, c = jpg_img.shape
 
-two_img = np.zeros((h2, w2*2, c))
-two_img[0:, w2:, :] = jpg_img
-two_img[h//4:h//4+h//2, w//4:w//4+w//2, :] = gmm_img
 
 plt.figure(figsize=(16, 8))
-plt.imshow(two_img)
+plt.subplot(1, 2, 1)
+y1, x1 = 740, 835
+dy1, dx1 = 100, 100
+plt.imshow(gmm_img[y1:y1+dy1, x1:x1+dx1])
 plt.axis("off")
-plt.title("簡易RAW現像結果(左), JPEG画像(右)")
+plt.title(u"簡易デモザイク結果")
+
+plt.subplot(1, 2, 2)
+y2, x2 = y1 * 2, x1 * 2
+dy2, dx2 = dy1 * 2, dx1 * 2
+plt.imshow(jpg_img[y2:y2+dy2, x2:x2+dx2])
+plt.axis("off")
+plt.title(u"JPEG画像")
+
 plt.show()
