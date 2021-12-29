@@ -33,24 +33,54 @@ dms_img = dms_img / white_level
 
 gmm_img = gamma_correction(dms_img, 2.2)
 
-jpg_img = image.imread("chart.jpg")
-jpg_img = jpg_img / jpg_img.max()
-h2, w2, c = jpg_img.shape
+def mirror(x, min, max):
+  if x < min:
+    return min - x
+  elif x >= max:
+    return 2 * max - x - 2
+  else:
+    return x
 
+dms_img = np.zeros((h, w, 3))
+bayer_pattern = raw.raw_pattern
+for y in range(0, h):
+  for x in range(0, w):
+    color = bayer_pattern[y % 2, x % 2]
+    y0 = mirror(y-1, 0, h)
+    y1 = mirror(y+1, 0, h)
+    x0 = mirror(x-1, 0, w)
+    x1 = mirror(x+1, 0, w)
+
+    # red
+    if color == 0:
+      dms_img[y, x, 0] = wb_raw[y, x]
+      dms_img[y, x, 1] = (wb_raw[y0, x] + wb_raw[y,  x0] + \
+                          wb_raw[y, x1] + wb_raw[y1,  x] )/4
+      dms_img[y, x, 2] = (wb_raw[y0, x0] + wb_raw[y0,  x1] + \
+                          wb_raw[y1, x0] + wb_raw[y1,  x1] )/4
+    # green1
+    elif color == 1:
+      dms_img[y, x, 0] = (wb_raw[y, x0] + wb_raw[y, x1]) / 2
+      dms_img[y, x, 1] = wb_raw[y, x]
+      dms_img[y, x, 2] = (wb_raw[y0, x] + wb_raw[y1, x]) / 2
+
+    # blue
+    elif color == 2:
+      dms_img[y, x, 0] = (wb_raw[y0, x0] + wb_raw[y1, x0] + \
+                          wb_raw[y0, x1] + wb_raw[y0, x1]) / 4
+      dms_img[y, x, 1] = (wb_raw[y0, x] + wb_raw[y1, x] + \
+                          wb_raw[y, x0] + wb_raw[y, x1]) / 4
+      dms_img[y, x, 2] = (wb_raw[y, x])
+
+    # green2
+    else:
+      dms_img[y, x, 0] = (wb_raw[y0, x0] + wb_raw[y0, x1]) / 2
+      dms_img[y, x, 1] = wb_raw[y, x]
+      dms_img[y, x, 2] = (wb_raw[y, x0] + wb_raw[y0, x1]) / 2
+
+gmm_full_img = gamma_correction(dms_img / white_level, 2.2)
 
 plt.figure(figsize=(16, 8))
-plt.subplot(1, 2, 1)
-y1, x1 = 740, 835
-dy1, dx1 = 100, 100
-plt.imshow(gmm_img[y1:y1+dy1, x1:x1+dx1])
-plt.axis("off")
-plt.title(u"簡易デモザイク結果")
-
-plt.subplot(1, 2, 2)
-y2, x2 = y1 * 2, x1 * 2
-dy2, dx2 = dy1 * 2, dx1 * 2
-plt.imshow(jpg_img[y2:y2+dy2, x2:x2+dx2])
-plt.axis("off")
-plt.title(u"JPEG画像")
-
+plt.imshow(gmm_full_img)
+plt.axis('off')
 plt.show()
