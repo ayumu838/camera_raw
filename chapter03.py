@@ -80,7 +80,22 @@ for y in range(0, h):
 
 gmm_full_img = gamma_correction(dms_img / white_level, 2.2)
 
+
 plt.figure(figsize=(16, 8))
-plt.imshow(gmm_full_img)
+
+plt.subplot(1, 2, 1)
+y1, x1 = 740, 835
+dy1, dx1 =  100, 100
+
+plt.imshow(gmm_img[y1: y1+dy1,  x1: x1+dx1])
 plt.axis('off')
+plt.title("簡易デモザイク結果")
+
+plt.subplot(1, 2, 2)
+y2, x2 = y1 * 2, x1 * 2
+dy2, dx2 = dy1 * 2, dx1 * 2
+plt.imshow(gmm_full_img[y2: y2+dy2, x2: x2+dx2])
+plt.axis('off')
+plt.title("線形補間デモザイク結果")
+
 plt.show()
