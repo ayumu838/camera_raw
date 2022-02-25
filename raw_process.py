@@ -1,4 +1,5 @@
 import numpy as np
+from scipy import signal
 
 def simple_demosaic(raw_array, pattern):
   """
@@ -22,6 +23,46 @@ def simple_demosaic(raw_array, pattern):
   dms_img[:, :, pattern[0, 1]] = raw_array[0::2, 1::2]
   dms_img[:, :, pattern[1, 0]] = raw_array[1::2, 0::2]
   dms_img[:, :, pattern[1, 1]] = raw_array[1::2, 1::2]
+  return dms_img
+
+def demosaic(raw_array, raw_colors):
+  """
+  Parameters
+  ----------
+  raw_array: numpy array
+    入力BayerRAW画像データ
+  raw_colors: numpy array
+    RAW画像のカラーチャンネルマトリクス
+    通常のRawpyのraw_colorsを用いて与える
+
+  Returns
+  ------
+  dms_img: numpy array
+    出力RAW画像
+  """
+  h, w = raw_array.shape
+  dms_img = np.zeros((h, w, 3))
+
+  green = raw_array.copy()
+  green[(raw_colors == 0) | (raw_colors == 2)] = 0
+  g_flt = np.array([[0, 1, 0], [1, 4, 1], [0, 1, 0]]) / 4.0
+  dms_img[:, :, 1] = signal.convolve2d(green, g_flt, \
+                                        boundary='symm',\
+                                        mode='same')
+
+  red = raw_array.copy()
+  red[raw_colors != 0] = 0
+  rb_flt = np.array([[ 1, 2, 1], [2, 4, 2], [1, 2, 1]]) / 4.0
+  dms_img[:, :, 0] = signal.convolve2d(red, rb_flt, \
+                                        boundary='symm', \
+                                        mode='same')
+
+  blue = raw_array.copy()
+  blue[raw_colors != 2] = 0
+  dms_img[:, :, 2] = signal.convolve2d(blue, rb_flt, \
+                                        boundary='symm', \
+                                        mode='same')
+
   return dms_img
 
 def white_balance(raw_array, wb_gain, raw_colors):
